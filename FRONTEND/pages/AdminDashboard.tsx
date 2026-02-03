@@ -146,6 +146,38 @@ const AdminDashboard: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Diagnostics Panel (Collapsible) */}
+                <details className="bg-slate-200 p-4 rounded-xl border border-slate-300">
+                    <summary className="font-bold cursor-pointer text-slate-700">Debug / Diagnostics Info (Click to Expand)</summary>
+                    <div className="mt-4 space-y-2 font-mono text-xs text-slate-800">
+                        <p><strong>Configured API URL (VITE_API_URL):</strong> {import.meta.env.VITE_API_URL || 'undefined (using fallback)'}</p>
+                        <p><strong>Actual Fetch URL:</strong> {`${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '')}/api/v1/admin`}</p>
+                        <p><strong>Auth Token Present:</strong> {localStorage.getItem('adminAccessToken') ? 'Yes (Starts with ' + localStorage.getItem('adminAccessToken')?.substring(0, 10) + '...)' : 'NO'}</p>
+                        <div className="mt-2">
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const token = localStorage.getItem('adminAccessToken');
+                                        let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                                        baseUrl = baseUrl.replace(/\/$/, '');
+                                        const res = await fetch(`${baseUrl}/api/v1/admin/stats`, {
+                                            headers: { 'Authorization': `Bearer ${token}` }
+                                        });
+                                        alert(`Test Fetch Status: ${res.status} ${res.statusText}`);
+                                        const json = await res.json();
+                                        alert(`Response Data: ${JSON.stringify(json).substring(0, 100)}...`);
+                                    } catch (e) {
+                                        alert(`Fetch Failed: ${String(e)}`);
+                                    }
+                                }}
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold"
+                            >
+                                Test API Connection Now
+                            </button>
+                        </div>
+                    </div>
+                </details>
+
                 {/* Error Alert Overlay */}
                 {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3">
