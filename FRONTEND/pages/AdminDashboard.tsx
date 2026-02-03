@@ -56,7 +56,8 @@ const AdminDashboard: React.FC = () => {
                 };
 
                 // Robust URL handling
-                let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                // FALLBACK: Use production URL if env var is missing (likely the case on Vercel if not set)
+                let baseUrl = import.meta.env.VITE_API_URL || 'https://investgrow-163r.onrender.com';
                 // Remove trailing slash if present to avoid double slashes
                 baseUrl = baseUrl.replace(/\/$/, '');
                 const backendUrl = `${baseUrl}/api/v1/admin`;
@@ -150,15 +151,16 @@ const AdminDashboard: React.FC = () => {
                 <details className="bg-slate-200 p-4 rounded-xl border border-slate-300">
                     <summary className="font-bold cursor-pointer text-slate-700">Debug / Diagnostics Info (Click to Expand)</summary>
                     <div className="mt-4 space-y-2 font-mono text-xs text-slate-800">
-                        <p><strong>Configured API URL (VITE_API_URL):</strong> {import.meta.env.VITE_API_URL || 'undefined (using fallback)'}</p>
-                        <p><strong>Actual Fetch URL:</strong> {`${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '')}/api/v1/admin`}</p>
+                        <p><strong>Configured API URL (VITE_API_URL):</strong> {import.meta.env.VITE_API_URL || 'undefined (using production fallback)'}</p>
+                        <p><strong>Actual Fetch URL:</strong> {`${(import.meta.env.VITE_API_URL || 'https://investgrow-163r.onrender.com').replace(/\/$/, '')}/api/v1/admin`}</p>
                         <p><strong>Auth Token Present:</strong> {localStorage.getItem('adminAccessToken') ? 'Yes (Starts with ' + localStorage.getItem('adminAccessToken')?.substring(0, 10) + '...)' : 'NO'}</p>
                         <div className="mt-2">
                             <button
                                 onClick={async () => {
                                     try {
                                         const token = localStorage.getItem('adminAccessToken');
-                                        let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                                        // FALLBACK UPDATE
+                                        let baseUrl = import.meta.env.VITE_API_URL || 'https://investgrow-163r.onrender.com';
                                         baseUrl = baseUrl.replace(/\/$/, '');
                                         const res = await fetch(`${baseUrl}/api/v1/admin/stats`, {
                                             headers: { 'Authorization': `Bearer ${token}` }
