@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #1e3a8a 0%, #22c55e 100%);
+  -webkit-background-clip: text; /* Safari/Chrome */
+  background-clip: text;         /* Standard property */
+  -webkit-text-fill-color: transparent;
+}
+
+.floating-whatsapp {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+}
