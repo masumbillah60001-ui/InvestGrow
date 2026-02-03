@@ -64,11 +64,10 @@ const Dashboard: React.FC = () => {
 
   const finalizeDeposit = (e: React.FormEvent) => {
     e.preventDefault();
-    // BYPASS: Validation disabled for demo/testing
-    // if (!utrNumber || !screenshot) {
-    //   setError("UTR Number and Payment Screenshot are mandatory.");
-    //   return;
-    // }
+    if (!utrNumber || !screenshot) {
+      setError("UTR Number and Payment Screenshot are mandatory.");
+      return;
+    }
 
     setIsSuccess(true);
     setSuccessType('deposit');
@@ -87,7 +86,6 @@ const Dashboard: React.FC = () => {
       setError(null);
     }, 2500);
   };
-
 
   const handleWithdraw = (e: React.FormEvent) => {
     e.preventDefault();
@@ -470,43 +468,80 @@ const Dashboard: React.FC = () => {
 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Payment Action</label>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Complete Payment</label>
+                    <a
+                      href="https://rzp.io/rzp/E26rDDq"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
                         const newPayment = {
                           id: `PAY-${Date.now()}`,
                           user: userName,
                           amount: parseFloat(depositAmount),
-                          status: 'Success',
-                          method: 'Simulated UPI',
+                          status: 'Pending', // Razorpay link clicked
+                          method: 'Razorpay UPI',
                           date: new Date().toLocaleString()
                         };
                         const existing = JSON.parse(localStorage.getItem('admin_payments') || '[]');
                         localStorage.setItem('admin_payments', JSON.stringify([newPayment, ...existing]));
 
-                        alert("Payment Simulated! Click 'COMPLETE DEPOSIT' to proceed.");
+                        // LOGGING: Deposit Attempt
+                        const newLog = {
+                          id: `LOG-${Date.now()}`,
+                          type: 'DEPOSIT',
+                          message: `User ${userName} clicked for ₹${depositAmount} deposit via Razorpay.`,
+                          time: new Date().toLocaleTimeString()
+                        };
+                        const existingLogs = JSON.parse(localStorage.getItem('admin_system_logs') || '[]');
+                        localStorage.setItem('admin_system_logs', JSON.stringify([newLog, ...existingLogs]));
                       }}
-                      className="flex items-center space-x-2 w-full bg-slate-100 px-5 py-4 rounded-2xl font-bold text-slate-900 justify-between border-2 border-slate-200 hover:border-blue-900 hover:bg-white transition-all cursor-pointer"
+                      className="flex items-center space-x-2 w-full bg-slate-100 px-5 py-4 rounded-2xl font-bold text-slate-900 justify-between border-2 border-slate-200 hover:border-blue-900 hover:bg-white transition-all"
                     >
-                      <span className="text-lg">Simulate Successful Payment</span>
-                      <ArrowUpRight size={20} className="text-emerald-500" />
-                    </button>
+                      <span className="text-lg">Click to Pay via Razorpay</span>
+                      <ArrowUpRight size={20} className="text-blue-900" />
+                    </a>
                   </div>
 
-                  <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-start space-x-3">
-                    <Info className="text-emerald-600 flex-shrink-0 mt-0.5" size={18} />
-                    <p className="text-xs text-emerald-800 leading-relaxed">
-                      <strong>Demo Mode:</strong> Clicking "Simulate" logs the payment. Then click "COMPLETE DEPOSIT" to add funds immediately.
+                  <div className="p-5 bg-orange-50 rounded-2xl border border-orange-100 flex items-start space-x-3">
+                    <AlertCircle className="text-orange-600 flex-shrink-0 mt-0.5" size={18} />
+                    <p className="text-xs text-orange-800 leading-relaxed">
+                      Click the link above to transfer <span className="font-bold">₹{parseFloat(depositAmount).toLocaleString()}</span> via UPI/Card. After payment, click "CONTINUE".
                     </p>
                   </div>
 
                   <button
-                    onClick={(e) => finalizeDeposit(e)}
+                    onClick={() => {
+                      // 1. Open Razorpay Link
+                      window.open("https://rzp.io/rzp/E26rDDq", "_blank");
+
+                      // 2. Log Payment Attempt
+                      const newPayment = {
+                        id: `PAY-${Date.now()}`,
+                        user: userName,
+                        amount: parseFloat(depositAmount),
+                        status: 'Pending',
+                        method: 'Razorpay UPI',
+                        date: new Date().toLocaleString()
+                      };
+                      const existing = JSON.parse(localStorage.getItem('admin_payments') || '[]');
+                      localStorage.setItem('admin_payments', JSON.stringify([newPayment, ...existing]));
+
+                      const newLog = {
+                        id: `LOG-${Date.now()}`,
+                        type: 'DEPOSIT',
+                        message: `User ${userName} clicked for ₹${depositAmount} deposit via Razorpay (Continue Button).`,
+                        time: new Date().toLocaleTimeString()
+                      };
+                      const existingLogs = JSON.parse(localStorage.getItem('admin_system_logs') || '[]');
+                      localStorage.setItem('admin_system_logs', JSON.stringify([newLog, ...existingLogs]));
+
+                      // 3. Proceed to UTR Screen
+                      goToUtrScreen();
+                    }}
                     className="w-full bg-blue-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-800 transition-all shadow-xl shadow-blue-900/20 flex items-center justify-center space-x-2 group"
                   >
-                    <span>COMPLETE DEPOSIT</span>
-                    <CheckCircle2 size={20} className="group-hover:scale-110 transition-transform" />
+                    <span>CONTINUE & PAY</span>
+                    <ArrowUpRight size={20} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </button>
                 </div>
 
