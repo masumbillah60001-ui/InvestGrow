@@ -46,17 +46,22 @@ const AdminDashboard: React.FC = () => {
 
         const fetchData = async () => {
             const token = localStorage.getItem('adminAccessToken');
-            // If no token, maybe we are in demo mode?
-            // But for real sync we need token.
-            // If !token, fallback to localstorage mock or empty.
             if (!token) return;
 
             try {
-                const headers = { 'Authorization': `Bearer ${token}` };
-                const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                const backendUrl = `${API_BASE_URL}/api/v1/admin`;
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
 
-                const [statsRes, usersRes, ordersRes, paymentsRes, logsRes] = await Promise.all([
+                // Robust URL handling
+                let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                // Remove trailing slash if present to avoid double slashes
+                baseUrl = baseUrl.replace(/\/$/, '');
+                const backendUrl = `${baseUrl}/api/v1/admin`;
+
+                // Use allSettled to prevent one failure from blocking all data
+                const results = await Promise.allSettled([
                     fetch(`${backendUrl}/stats`, { headers }),
                     fetch(`${backendUrl}/users`, { headers }),
                     fetch(`${backendUrl}/orders`, { headers }),
@@ -64,14 +69,34 @@ const AdminDashboard: React.FC = () => {
                     fetch(`${backendUrl}/logs`, { headers })
                 ]);
 
-                if (statsRes.ok) setStats((await statsRes.json()).data);
-                if (usersRes.ok) setUsers((await usersRes.json()).data);
-                if (ordersRes.ok) setOrders((await ordersRes.json()).data);
-                if (paymentsRes.ok) setPayments((await paymentsRes.json()).data);
-                if (logsRes.ok) setLogs((await logsRes.json()).data);
+                // Destructure results
+                const [statsResult, usersResult, ordersResult, paymentsResult, logsResult] = results;
+
+                // Helper to process result
+                const processResult = async (result: PromiseSettledResult<Response>, setState: React.Dispatch<React.SetStateAction<any>>) => {
+                    if (result.status === 'fulfilled' && result.value.ok) {
+                        try {
+                            const data = await result.value.json();
+                            setState(data.data);
+                        } catch (err) {
+                            console.error("Error parsing JSON:", err);
+                        }
+                    } else if (result.status === 'rejected') {
+                        console.error("Request failed:", result.reason);
+                    } else if (result.status === 'fulfilled' && !result.value.ok) {
+                        console.error(`Request failed with status: ${result.value.status}`);
+                    }
+                };
+
+                // Update states independently
+                await processResult(statsResult, setStats);
+                await processResult(usersResult, setUsers);
+                await processResult(ordersResult, setOrders);
+                await processResult(paymentsResult, setPayments);
+                await processResult(logsResult, setLogs);
 
             } catch (error) {
-                console.error("Failed to fetch admin data", error);
+                console.error("Critical error in admin data fetch loop", error);
             }
         };
 
