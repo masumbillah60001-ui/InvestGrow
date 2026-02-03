@@ -1,13 +1,18 @@
-
 import { GoogleGenAI } from "@google/genai";
-
-// FIX: Always use process.env.API_KEY directly to initialize GoogleGenAI.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getInvestmentAssistantResponse = async (userMessage: string) => {
   try {
+    const apiKey = process.env.API_KEY;
+
+    if (!apiKey || apiKey === 'PLACEHOLDER_API_KEY') {
+      console.warn("Gemini API Key is missing or invalid.");
+      return "I am currently unable to connect to my brain. Please check the API Key configuration.";
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-1.5-flash', // Updated to stable model name if possible, or keep preview
       contents: userMessage,
       config: {
         systemInstruction: `You are an AI Investment Assistant for "InvestGrow India".
