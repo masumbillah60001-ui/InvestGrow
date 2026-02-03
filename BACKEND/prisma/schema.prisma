@@ -52,9 +52,6 @@ model User {
   auditLogs         AuditLog[]
   contactMessages   ContactMessage[]
   
-  @@index([email])
-  @@index([phone])
-  @@index([panNumber])
   @@map("users")
 }
 
@@ -77,9 +74,9 @@ model InvestmentPlan {
   planCode                String          @unique
   description             String?
   
-  minInvestmentAmount     Decimal         @db.Decimal(12, 2)
-  maxInvestmentAmount     Decimal?        @db.Decimal(12, 2)
-  suggestedSipAmount      Decimal?        @db.Decimal(12, 2)
+  minInvestmentAmount     Float
+  maxInvestmentAmount     Float?
+  suggestedSipAmount      Float?
   
   riskLevel               RiskLevel
   investmentType          InvestmentType
@@ -98,7 +95,6 @@ model InvestmentPlan {
   userInvestments         UserInvestment[]
   
   @@index([isActive])
-  @@index([planCode])
   @@map("investment_plans")
 }
 
@@ -126,18 +122,18 @@ model UserInvestment {
   
   investmentType        InvestmentType
   
-  sipAmount             Decimal?            @db.Decimal(12, 2)
+  sipAmount             Float?
   sipDate               Int?                // Day of month (1-28)
   sipFrequency          SipFrequency?
   
-  lumpSumAmount         Decimal?            @db.Decimal(12, 2)
+  lumpSumAmount         Float?
   
   startDate             DateTime
   endDate               DateTime?
   status                InvestmentStatus    @default(ACTIVE)
   
-  totalInvested         Decimal             @default(0) @db.Decimal(15, 2)
-  currentValue          Decimal             @default(0) @db.Decimal(15, 2)
+  totalInvested         Float               @default(0)
+  currentValue          Float               @default(0)
   lastTransactionDate   DateTime?
   
   createdAt             DateTime            @default(now())
@@ -172,7 +168,7 @@ model ConsultationRequest {
   preferredTime               String?
   
   investmentGoal              String?
-  monthlyInvestmentCapacity   Decimal?            @db.Decimal(12, 2)
+  monthlyInvestmentCapacity   Float?
   
   status                      ConsultationStatus  @default(PENDING)
   assignedAdvisorId           String?
@@ -250,7 +246,6 @@ model BlogPost {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   
-  @@index([slug])
   @@index([status])
   @@index([publishedAt])
   @@index([category])
@@ -268,7 +263,6 @@ model NewsletterSubscriber {
   subscribedAt        DateTime    @default(now())
   unsubscribedAt      DateTime?
   
-  @@index([email])
   @@index([isActive])
   @@map("newsletter_subscribers")
 }
@@ -324,7 +318,6 @@ model Session {
   lastActivityAt    DateTime  @default(now())
   
   @@index([userId])
-  @@index([refreshToken])
   @@index([expiresAt])
   @@map("sessions")
 }
