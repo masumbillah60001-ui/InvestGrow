@@ -1,7 +1,17 @@
+/// <reference types="vite/client" />
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Users, TrendingUp, Activity, ShoppingBag, CreditCard, Clock, CheckCircle2, XCircle, LogOut } from 'lucide-react';
-import { InvestmentOrder } from '../types';
+
+
+// Local types for Admin Dashboard to match API response
+interface AdminOrder {
+    id: string;
+    productName: string;
+    investAmount: number;
+    status: string;
+    startDate: string;
+}
 
 const AdminDashboard: React.FC = () => {
     const [stats, setStats] = useState({
@@ -10,7 +20,7 @@ const AdminDashboard: React.FC = () => {
         activeOrders: 0,
         totalPayments: 0
     });
-    const [orders, setOrders] = useState<InvestmentOrder[]>([]);
+    const [orders, setOrders] = useState<AdminOrder[]>([]);
     const [payments, setPayments] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
     const [logs, setLogs] = useState<any[]>([]); // Added logs state
@@ -26,45 +36,46 @@ const AdminDashboard: React.FC = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('isAdminAuthenticated');
+        localStorage.removeItem('adminAccessToken');
         navigate('/admin/login');
     };
 
     // Real-time Monitor (5s Update)
     useEffect(() => {
-        if (!localStorage.getItem('isAdminAuthenticated')) return; // Skip if not auth
+        if (!localStorage.getItem('isAdminAuthenticated')) return;
 
-        const fetchData = () => {
-            // Fetch Orders (Global List)
-            const savedOrders = localStorage.getItem('admin_all_orders'); // Changed from user_orders
-            const parsedOrders: InvestmentOrder[] = savedOrders ? JSON.parse(savedOrders) : [];
-            setOrders(parsedOrders);
+        const fetchData = async () => {
+            const token = localStorage.getItem('adminAccessToken');
+            // If no token, maybe we are in demo mode?
+            // But for real sync we need token.
+            // If !token, fallback to localstorage mock or empty.
+            if (!token) return;
 
-            // Fetch Payments
-            const savedPayments = localStorage.getItem('admin_payments');
-            const parsedPayments = savedPayments ? JSON.parse(savedPayments) : [];
-            setPayments(parsedPayments);
+            try {
+                const headers = { 'Authorization': `Bearer ${token}` };
+                const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const backendUrl = `${API_BASE_URL}/api/v1/admin`;
 
-            // Fetch Users Management
-            const savedUsers = localStorage.getItem('admin_users');
-            const parsedUsers = savedUsers ? JSON.parse(savedUsers) : [];
-            setUsers(parsedUsers);
+                const [statsRes, usersRes, ordersRes, paymentsRes, logsRes] = await Promise.all([
+                    fetch(`${backendUrl}/stats`, { headers }),
+                    fetch(`${backendUrl}/users`, { headers }),
+                    fetch(`${backendUrl}/orders`, { headers }),
+                    fetch(`${backendUrl}/payments`, { headers }),
+                    fetch(`${backendUrl}/logs`, { headers })
+                ]);
 
-            // Fetch System Logs
-            const savedLogs = localStorage.getItem('admin_system_logs');
-            const parsedLogs = savedLogs ? JSON.parse(savedLogs) : [];
-            setLogs(parsedLogs);
+                if (statsRes.ok) setStats((await statsRes.json()).data);
+                if (usersRes.ok) setUsers((await usersRes.json()).data);
+                if (ordersRes.ok) setOrders((await ordersRes.json()).data);
+                if (paymentsRes.ok) setPayments((await paymentsRes.json()).data);
+                if (logsRes.ok) setLogs((await logsRes.json()).data);
 
-            // Calculate Stats
-            const totalInv = parsedOrders.reduce((sum, o) => sum + (o.investAmount || 0), 0);
-            setStats({
-                activeUsers: 1,
-                totalInvested: totalInv,
-                activeOrders: parsedOrders.length,
-                totalPayments: parsedPayments.length
-            });
+            } catch (error) {
+                console.error("Failed to fetch admin data", error);
+            }
         };
 
-        fetchData(); // Initial calculation
+        fetchData(); // Initial
         const interval = setInterval(fetchData, 5000); // 5s Polling
 
         return () => clearInterval(interval);

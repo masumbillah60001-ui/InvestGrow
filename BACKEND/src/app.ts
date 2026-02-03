@@ -13,6 +13,7 @@ import plansRoutes from './routes/plans.routes';
 import investmentsRoutes from './routes/investments.routes';
 import communicationRoutes from './routes/communication.routes';
 import blogRoutes from './routes/blog.routes';
+import adminRoutes from './routes/admin.routes';
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/v1/plans', plansRoutes);
 app.use('/api/v1/investments', investmentsRoutes);
 app.use('/api/v1/communication', communicationRoutes);
 app.use('/api/v1/blog', blogRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

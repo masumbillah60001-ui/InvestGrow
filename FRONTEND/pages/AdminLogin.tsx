@@ -1,20 +1,56 @@
+/// <reference types="vite/client" />
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Lock, Mail, ChevronRight, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, ChevronRight, AlertCircle, Loader2 } from 'lucide-react';
 
 const AdminLogin: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (email === 'Admininvest@gmail.com' && password === 'Admininvest123') {
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Dynamic API URL for production vs localhost
+            const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+
+            // Check if user is admin
+            if (data.data.user.role !== 'ADMIN') {
+                throw new Error('Access Denied: Not an Administrator');
+            }
+
             localStorage.setItem('isAdminAuthenticated', 'true');
-            navigate('/admin');
-        } else {
-            setError('Invalid Administrator Credentials');
+            localStorage.setItem('adminAccessToken', data.data.accessToken);
+            navigate('/admin/dashboard'); // Navigating to dashboard specifically
+        } catch (err: any) {
+            // Fallback for demo/hardcoded credentials if DB is empty or connection fails
+            if (email === 'Admininvest@gmail.com' && password === 'Admininvest123') {
+                localStorage.setItem('isAdminAuthenticated', 'true');
+                // Note: Real API features won't work without a token, but basic access allows viewing static parts
+                // However, we want real monitoring, so we warn the user.
+                alert("Warning: Using demo credentials. Real-time data sync requires a valid backend Admin account.");
+                navigate('/admin/dashboard');
+            } else {
+                setError(err.message || 'Invalid Credentials');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -43,6 +79,7 @@ const AdminLogin: React.FC = () => {
                                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-900 transition-all"
                                     placeholder="admin@company.com"
                                     required
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
@@ -58,6 +95,7 @@ const AdminLogin: React.FC = () => {
                                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-900 transition-all"
                                     placeholder="••••••••••••"
                                     required
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
@@ -71,10 +109,17 @@ const AdminLogin: React.FC = () => {
 
                         <button
                             type="submit"
-                            className="w-full bg-blue-900 text-white py-4 rounded-xl font-bold flex items-center justify-center space-x-2 hover:bg-blue-800 transition-all shadow-lg shadow-blue-900/20 group"
+                            disabled={loading}
+                            className="w-full bg-blue-900 text-white py-4 rounded-xl font-bold flex items-center justify-center space-x-2 hover:bg-blue-800 transition-all shadow-lg shadow-blue-900/20 group disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            <span>Access Dashboard</span>
-                            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            {loading ? (
+                                <Loader2 size={20} className="animate-spin" />
+                            ) : (
+                                <>
+                                    <span>Access Dashboard</span>
+                                    <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
                         </button>
                     </form>
                 </div>

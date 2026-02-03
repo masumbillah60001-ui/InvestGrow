@@ -470,7 +470,7 @@ const Dashboard: React.FC = () => {
                   <div className="space-y-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Complete Payment</label>
                     <a
-                      href="https://rzp.io/rzp/E26rDDq"
+                      href="https://rzp.io/rzp/YGHt8NCq"
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => {
@@ -512,7 +512,7 @@ const Dashboard: React.FC = () => {
                   <button
                     onClick={() => {
                       // 1. Open Razorpay Link
-                      window.open("https://rzp.io/rzp/E26rDDq", "_blank");
+                      window.open("https://rzp.io/rzp/YGHt8NCq", "_blank");
 
                       // 2. Log Payment Attempt
                       const newPayment = {

@@ -9,7 +9,7 @@ const Plans: React.FC = () => {
 
   const handleSelectPlan = (planId: string) => {
     // Redirect to Razorpay payment link
-    window.open('https://rzp.io/rzp/E26rDDq', '_blank');
+    window.open('https://rzp.io/rzp/YGHt8NCq', '_blank');
   };
 
   return (
@@ -34,8 +34,8 @@ const Plans: React.FC = () => {
             <div
               key={plan.id}
               className={`flex flex-col p-8 rounded-3xl border-2 transition-all duration-300 relative ${plan.id === 'growth'
-                  ? 'border-blue-900 shadow-2xl scale-105 z-10 bg-white'
-                  : 'border-slate-100 bg-white hover:border-blue-200 shadow-sm'
+                ? 'border-blue-900 shadow-2xl scale-105 z-10 bg-white'
+                : 'border-slate-100 bg-white hover:border-blue-200 shadow-sm'
                 }`}
             >
               {plan.id === 'growth' && (
@@ -52,8 +52,8 @@ const Plans: React.FC = () => {
                 </div>
                 <div className="mt-4 flex space-x-2">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tight ${plan.risk === 'Low' ? 'bg-emerald-100 text-emerald-700' :
-                      plan.risk === 'Moderate' ? 'bg-blue-100 text-blue-700' :
-                        'bg-orange-100 text-orange-700'
+                    plan.risk === 'Moderate' ? 'bg-blue-100 text-blue-700' :
+                      'bg-orange-100 text-orange-700'
                     }`}>
                     {plan.risk} Risk
                   </span>
@@ -78,8 +78,8 @@ const Plans: React.FC = () => {
               <button
                 onClick={() => handleSelectPlan(plan.id)}
                 className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg ${plan.id === 'growth'
-                    ? 'bg-blue-900 text-white hover:bg-blue-800 shadow-blue-900/20'
-                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                  ? 'bg-blue-900 text-white hover:bg-blue-800 shadow-blue-900/20'
+                  : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
                   }`}
               >
                 Select This Plan
