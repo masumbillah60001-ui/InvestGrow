@@ -20,7 +20,20 @@ const app = express();
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.CORS_ORIGINS?.split(',') || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'https://invest-grow.vercel.app',
+            ...(process.env.CORS_ORIGINS?.split(',') || [])
+        ];
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
 
