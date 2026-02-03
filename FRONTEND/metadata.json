@@ -1,0 +1,8 @@
+{
+  "name": "InvestGrow India",
+  "description": "A professional, trustworthy, and modern investment platform for Indian users to grow their wealth through SIPs and long-term planning.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
