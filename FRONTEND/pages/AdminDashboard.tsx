@@ -56,9 +56,15 @@ const AdminDashboard: React.FC = () => {
                 };
 
                 // Robust URL handling
-                // FALLBACK: Use production URL if env var is missing (likely the case on Vercel if not set)
+                // FALLBACK: Use production URL if env var is missing
                 let baseUrl = import.meta.env.VITE_API_URL || 'https://investgrow-163r.onrender.com';
-                // Remove trailing slash if present to avoid double slashes
+
+                // FORCE HTTPS: Prevent redirects stripping Auth headers
+                if (baseUrl.startsWith('http://')) {
+                    baseUrl = baseUrl.replace('http://', 'https://');
+                }
+
+                // Remove trailing slash
                 baseUrl = baseUrl.replace(/\/$/, '');
                 const backendUrl = `${baseUrl}/api/v1/admin`;
 
@@ -172,6 +178,12 @@ const AdminDashboard: React.FC = () => {
                                         const token = localStorage.getItem('adminAccessToken');
                                         // FALLBACK UPDATE
                                         let baseUrl = import.meta.env.VITE_API_URL || 'https://investgrow-163r.onrender.com';
+
+                                        // FORCE HTTPS
+                                        if (baseUrl.startsWith('http://')) {
+                                            baseUrl = baseUrl.replace('http://', 'https://');
+                                        }
+
                                         baseUrl = baseUrl.replace(/\/$/, '');
                                         const res = await fetch(`${baseUrl}/api/v1/admin/stats`, {
                                             headers: { 'Authorization': `Bearer ${token}` }

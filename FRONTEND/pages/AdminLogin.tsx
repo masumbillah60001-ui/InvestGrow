@@ -16,9 +16,14 @@ const AdminLogin: React.FC = () => {
         setError(null);
 
         try {
-            // Dynamic API URL for production vs localhost
             // FALLBACK: Use production URL if env var is missing
             let baseUrl = import.meta.env.VITE_API_URL || 'https://investgrow-163r.onrender.com';
+
+            // FORCE HTTPS: Prevent redirects stripping headers
+            if (baseUrl.startsWith('http://')) {
+                baseUrl = baseUrl.replace('http://', 'https://');
+            }
+
             baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
             const API_BASE_URL = baseUrl;
             const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
