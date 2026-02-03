@@ -22,14 +22,19 @@ const Home: React.FC = () => {
               Trusted investment guidance for long-term financial growth. Start your wealth-building journey with India's most transparent platform.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <Link to="/plans" className="w-full sm:w-auto bg-blue-900 text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-blue-800 transition-all shadow-xl hover:shadow-blue-900/30 flex items-center justify-center">
+              {/* Mobile Only Login Button */}
+              <Link to="/login" className="w-full sm:hidden bg-blue-900 text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-blue-800 transition-all shadow-xl hover:shadow-blue-900/30 flex items-center justify-center">
+                Member Login <ArrowRight size={20} className="ml-2" />
+              </Link>
+
+              <Link to="/plans" className="w-full sm:w-auto bg-blue-900 text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-blue-800 transition-all shadow-xl hover:shadow-blue-900/30 flex items-center justify-center hidden sm:flex">
                 Start Investing <ArrowRight size={20} className="ml-2" />
               </Link>
               <Link to="/contact" className="w-full sm:w-auto bg-white text-slate-900 border-2 border-slate-200 px-8 py-4 rounded-full text-lg font-bold hover:border-blue-900 transition-all flex items-center justify-center">
                 Free Consultation
               </Link>
             </div>
-            
+
             <div className="flex flex-wrap justify-center lg:justify-start gap-8 pt-4">
               <div className="flex items-center text-slate-500 text-sm">
                 <CheckCircle size={18} className="text-emerald-500 mr-2" /> SEBI Compliant
@@ -47,9 +52,9 @@ const Home: React.FC = () => {
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl"></div>
             <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl"></div>
             <div className="relative z-10 rounded-2xl shadow-2xl border-8 border-white overflow-hidden bg-slate-200">
-              <img 
-                src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&q=80&w=1200" 
-                alt="Growth Chart and Wealth Management" 
+              <img
+                src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&q=80&w=1200"
+                alt="Growth Chart and Wealth Management"
                 className="w-full aspect-square object-cover"
               />
             </div>
@@ -88,7 +93,7 @@ const Home: React.FC = () => {
             {/* Decorative background elements */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
-            
+
             <div className="relative flex flex-col lg:flex-row items-center justify-between gap-12">
               <div className="flex-1 space-y-8 text-center lg:text-left">
                 <div className="inline-flex items-center space-x-2 bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-sm font-bold tracking-widest uppercase">
@@ -103,8 +108,8 @@ const Home: React.FC = () => {
                   Invite your friends to the world of smart investing. You both grow your wealth, and you get rewarded for every successful sign-up.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link 
-                    to="/signup" 
+                  <Link
+                    to="/signup"
                     className="flex items-center justify-center space-x-3 bg-emerald-500 hover:bg-emerald-600 text-slate-900 px-10 py-5 rounded-2xl font-black text-lg transition-all shadow-xl shadow-emerald-500/20 group/btn"
                   >
                     <span>Get My Referral Link</span>
@@ -127,7 +132,7 @@ const Home: React.FC = () => {
                       <div className="flex -space-x-2 justify-center">
                         {[1, 2, 3, 4].map(i => (
                           <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center overflow-hidden">
-                            <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="avatar" />
+                            <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="avatar" />
                           </div>
                         ))}
                         <div className="w-10 h-10 rounded-full border-2 border-slate-900 bg-emerald-500 flex items-center justify-center text-[10px] font-bold text-slate-900">
@@ -197,7 +202,7 @@ const Home: React.FC = () => {
             <div className="hidden md:flex space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="flex text-yellow-400">
-                  {[1,2,3,4,5].map(i => <Award key={i} size={16} fill="currentColor" />)}
+                  {[1, 2, 3, 4, 5].map(i => <Award key={i} size={16} fill="currentColor" />)}
                 </div>
                 <span className="text-sm font-bold text-slate-700">4.9/5 Average Rating</span>
               </div>
