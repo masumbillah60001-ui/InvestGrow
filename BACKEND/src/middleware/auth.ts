@@ -19,6 +19,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader?.startsWith('Bearer ')) {
+            console.log('Auth Failed. Received Headers:', JSON.stringify(req.headers)); // Debug log
             throw new AppError('Authorization token required', 401);
         }
 

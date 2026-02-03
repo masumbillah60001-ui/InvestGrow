@@ -22,6 +22,7 @@ app.use(helmet());
 app.use(cors({
     origin: '*', // Temporarily allow all for debugging
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'] // Explicitly allow Authorization
 }));
 
 // Request Logging for Debugging
