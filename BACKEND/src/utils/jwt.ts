@@ -23,8 +23,15 @@ export const generateRefreshToken = (payload: { sub: string; sessionId: string }
 export const verifyAccessToken = (token: string): TokenPayload => {
     try {
         return jwt.verify(token, ACCESS_SECRET) as TokenPayload;
-    } catch (error) {
-        throw new AppError('Invalid or expired access token', 401);
+    } catch (error: any) {
+        console.error(`JWT Verification Failed. Token: ${token.substring(0, 10)}... Error: ${error.message}`);
+        if (error.name === 'TokenExpiredError') {
+            throw new AppError('Token expired. Please login again.', 401);
+        }
+        if (error.name === 'JsonWebTokenError') {
+            throw new AppError('Invalid token signature.', 401);
+        }
+        throw new AppError('Invalid access token', 401);
     }
 };
 

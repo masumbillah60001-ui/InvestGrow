@@ -153,7 +153,18 @@ const AdminDashboard: React.FC = () => {
                     <div className="mt-4 space-y-2 font-mono text-xs text-slate-800">
                         <p><strong>Configured API URL (VITE_API_URL):</strong> {import.meta.env.VITE_API_URL || 'undefined (using production fallback)'}</p>
                         <p><strong>Actual Fetch URL:</strong> {`${(import.meta.env.VITE_API_URL || 'https://investgrow-163r.onrender.com').replace(/\/$/, '')}/api/v1/admin`}</p>
-                        <p><strong>Auth Token Present:</strong> {localStorage.getItem('adminAccessToken') ? 'Yes (Starts with ' + localStorage.getItem('adminAccessToken')?.substring(0, 10) + '...)' : 'NO'}</p>
+                        <p><strong>Auth Token Status:</strong> {(() => {
+                            const t = localStorage.getItem('adminAccessToken');
+                            if (!t) return 'Missing';
+                            try {
+                                const payload = JSON.parse(atob(t.split('.')[1]));
+                                const exp = new Date(payload.exp * 1000);
+                                const isExpired = new Date() > exp;
+                                return `Present. Expires: ${exp.toLocaleString()} (${isExpired ? 'EXPIRED' : 'Valid'})`;
+                            } catch (e) {
+                                return 'Present but Invalid Format';
+                            }
+                        })()}</p>
                         <div className="mt-2">
                             <button
                                 onClick={async () => {
