@@ -24,6 +24,7 @@ const AdminDashboard: React.FC = () => {
     const [payments, setPayments] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
     const [logs, setLogs] = useState<any[]>([]); // Added logs state
+    const [error, setError] = useState<string | null>(null); // Error state
     const navigate = useNavigate();
 
     // Auth Check
@@ -72,31 +73,44 @@ const AdminDashboard: React.FC = () => {
                 // Destructure results
                 const [statsResult, usersResult, ordersResult, paymentsResult, logsResult] = results;
 
+                // Check for general connectivity error if ALL failed
+                const allFailed = results.every(r => r.status === 'rejected');
+                if (allFailed) {
+                    setError(`Critical: All data fetches failed. Connect to ${baseUrl} failed.`);
+                } else {
+                    setError(null); // Clear error if at least some worked
+                }
+
                 // Helper to process result
-                const processResult = async (result: PromiseSettledResult<Response>, setState: React.Dispatch<React.SetStateAction<any>>) => {
+                const processResult = async (result: PromiseSettledResult<Response>, setState: React.Dispatch<React.SetStateAction<any>>, name: string) => {
                     if (result.status === 'fulfilled' && result.value.ok) {
                         try {
                             const data = await result.value.json();
                             setState(data.data);
                         } catch (err) {
-                            console.error("Error parsing JSON:", err);
+                            console.error(`Error parsing JSON for ${name}:`, err);
                         }
                     } else if (result.status === 'rejected') {
-                        console.error("Request failed:", result.reason);
+                        console.error(`Request failed for ${name}:`, result.reason);
+                        // Optional: Append to error state if needed, but might be too noisy
                     } else if (result.status === 'fulfilled' && !result.value.ok) {
-                        console.error(`Request failed with status: ${result.value.status}`);
+                        console.error(`Request failed for ${name} with status: ${result.value.status}`);
+                        if (result.value.status === 401) {
+                            setError("Session expired or unauthorized. Please login again.");
+                        }
                     }
                 };
 
                 // Update states independently
-                await processResult(statsResult, setStats);
-                await processResult(usersResult, setUsers);
-                await processResult(ordersResult, setOrders);
-                await processResult(paymentsResult, setPayments);
-                await processResult(logsResult, setLogs);
+                await processResult(statsResult, setStats, 'Stats');
+                await processResult(usersResult, setUsers, 'Users');
+                await processResult(ordersResult, setOrders, 'Orders');
+                await processResult(paymentsResult, setPayments, 'Payments');
+                await processResult(logsResult, setLogs, 'Logs');
 
             } catch (error) {
                 console.error("Critical error in admin data fetch loop", error);
+                setError("Critical execution error: " + (error instanceof Error ? error.message : String(error)));
             }
         };
 
@@ -131,6 +145,14 @@ const AdminDashboard: React.FC = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* Error Alert Overlay */}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3">
+                        <XCircle className="h-5 w-5 flex-shrink-0" />
+                        <span className="font-medium text-sm">Dashboard Error: {error}</span>
+                    </div>
+                )}
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

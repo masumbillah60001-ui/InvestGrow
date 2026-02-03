@@ -20,22 +20,15 @@ const app = express();
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-    origin: (origin, callback) => {
-        const allowedOrigins = [
-            'http://localhost:5173',
-            'https://invest-grow.vercel.app',
-            ...(process.env.CORS_ORIGINS?.split(',') || [])
-        ];
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: '*', // Temporarily allow all for debugging
     credentials: true,
 }));
+
+// Request Logging for Debugging
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
 
 // Rate Limiting (Basic global limit)
 const limiter = rateLimit({
