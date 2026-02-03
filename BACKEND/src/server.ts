@@ -20,6 +20,9 @@ const startServer = async () => {
 
         app.listen(PORT, () => {
             logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+            logger.info(`[DEBUG] Server Time: ${new Date().toISOString()}`);
+            const secret = process.env.JWT_ACCESS_SECRET || 'access_secret';
+            logger.info(`[DEBUG] JWT Secret Loaded: ${secret.substring(0, 3)}... (Length: ${secret.length})`);
         });
     } catch (error) {
         logger.error('Failed to start server:', error);
